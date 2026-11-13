@@ -1,0 +1,98 @@
+import { useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { useSite } from '../context/SiteContext.jsx';
+import { api } from '../api.js';
+
+const BOARD_EMAIL = 'informs@scu.edu';
+
+export default function BoardLogin() {
+  const { auth, refreshAuth } = useSite();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState(BOARD_EMAIL);
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  if (auth.loading) return <div className="page-loading">Loading…</div>;
+  if (auth.authenticated) return <Navigate to="/board/edit" replace />;
+
+  const registering = !auth.registered;
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setNotice('');
+    if (registering) {
+      if (email.trim().toLowerCase() !== BOARD_EMAIL) return setError(`Only ${BOARD_EMAIL} can register as the board account.`);
+      if (password.length < 8) return setError('Password must be at least 8 characters.');
+      if (password !== confirm) return setError('Passwords do not match.');
+    }
+    setBusy(true);
+    try {
+      if (registering) {
+        await api('/auth/register', { method: 'POST', body: { email, password } });
+        await refreshAuth();
+        setPassword('');
+        setConfirm('');
+        setNotice('Board account created. Now log in with your new password.');
+      } else {
+        await api('/auth/login', { method: 'POST', body: { email, password } });
+        await refreshAuth();
+        navigate('/board/edit');
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="section page-section">
+      <div className="container auth-wrap">
+        <form className="card auth-card" onSubmit={onSubmit}>
+          <div className="auth-steps" aria-hidden="true">
+            <span className={registering ? 'active' : 'done'}>1. Register</span>
+            <span className={registering ? '' : 'active'}>2. Log in</span>
+          </div>
+          <h1>{registering ? 'Register the board account' : 'Board Login'}</h1>
+          <p className="muted">
+            {registering
+              ? `Create the password for ${BOARD_EMAIL}. This is a one-time setup for the student board.`
+              : 'Log in to view analytics and edit the website.'}
+          </p>
+
+          <label>
+            Email
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="username" />
+          </label>
+          <label>
+            Password
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={registering ? 8 : undefined}
+              autoComplete={registering ? 'new-password' : 'current-password'}
+            />
+          </label>
+          {registering && (
+            <label>
+              Confirm password
+              <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required autoComplete="new-password" />
+            </label>
+          )}
+
+          <button type="submit" className="btn btn-primary btn-block" disabled={busy}>
+            {busy ? 'Please wait…' : registering ? 'Create account' : 'Log in'}
+          </button>
+          {notice && <p className="form-status success">{notice}</p>}
+          {error && <p className="form-status error">{error}</p>}
+        </form>
+      </div>
+    </section>
+  );
+}
