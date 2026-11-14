@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# Informs-Landing-Page
-=======
 # SCU INFORMS Website
 
 The public website and student-board dashboard for the Santa Clara University INFORMS chapter.
@@ -40,7 +37,7 @@ Everything below is in **Edit Content**. Click **Save changes** to publish. Unsa
 | Events | Add events with name, location, start/end, details. They move to Past Events automatically when they end |
 | Meet the Team | Profile photo, name, position, graduation year, major |
 | SCU Chapter Photos | Images shown on About → SCU Chapter |
-| Blog | Posts with cover image, summary and rich-text body |
+| Blog | Photo posts with a title, caption and multiple photos. The first photo is the thumbnail; visitors flip through the rest with arrows |
 | Gallery | Photos and captions |
 | Logos | SCU INFORMS header logo and the Santa Clara University footer logo |
 
@@ -75,11 +72,12 @@ Some school Google accounts don't allow the *Anyone* access option. If it's miss
 
 Messages go to `informs@scu.edu`. To have the server send them directly, fill in the `SMTP_*` values in `.env` (for example a Gmail account with an App Password). Without SMTP settings, pressing **Submit** opens the visitor's email app with the message pre-filled to `informs@scu.edu`.
 
-## GitHub Pages (public pages only)
+## Static hosts: GitHub Pages and Cloudflare Pages (public pages only)
 
-Every push to `main` builds the site and publishes it to `https://<your-username>.github.io/informs_landing_page/` using `.github/workflows/deploy-pages.yml`. One-time setup: on GitHub, open the repo's **Settings → Pages** and set **Source** to **GitHub Actions**.
+The site detects when it's on a static host (no API server) and switches to a read-only preview. It shows the built-in starting content from `server/defaultContent.js`. Board login, editing, uploads and analytics don't work there, and the Contact form opens the visitor's email app. For the full site, deploy with a Node host as described below.
 
-GitHub Pages can only host plain files, so that copy is a read-only preview. It shows the built-in starting content from `server/defaultContent.js`. Board login, editing, uploads and analytics don't work there, and the Contact form opens the visitor's email app. For the full site, deploy with a Node host as described below.
+- **GitHub Pages:** every push to `main` builds the site and publishes it to `https://<your-username>.github.io/Informs-Landing-Page/` using `.github/workflows/deploy-pages.yml`. One-time setup: on GitHub, open the repo's **Settings → Pages** and set **Source** to **GitHub Actions**.
+- **Cloudflare Pages:** connect the repo with build command `npm run build` and output directory `dist`. No environment variables are needed.
 
 ## Deploying
 
@@ -90,4 +88,3 @@ npm start          # serves the site and API on PORT (default 3001)
 ```
 
 Host it anywhere that runs a persistent Node process with a writable disk (Render, Railway, Fly.io, a VM, etc.). The `data/` folder holds all content, uploaded images, the board account and analytics, so keep it on persistent storage and back it up. Set `DATA_DIR` to put it somewhere else.
->>>>>>> 1aca2c1 (Initial SCU Informs website)

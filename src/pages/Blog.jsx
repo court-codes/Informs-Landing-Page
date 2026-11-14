@@ -1,19 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useSite } from '../context/SiteContext.jsx';
 import RichText from '../components/RichText.jsx';
-import { fmtShortDate } from '../dates.js';
-
-export function sortedPosts(posts) {
-  return posts.filter((p) => p.title).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-}
-
-export function postDate(post) {
-  return post.date ? fmtShortDate(new Date(`${post.date}T12:00:00`)) : '';
-}
+import { postDate, publishedPosts } from '../blogPosts.js';
 
 export default function Blog() {
   const { content } = useSite();
-  const posts = sortedPosts(content.blog);
+  const posts = publishedPosts(content.blog);
 
   return (
     <section className="section page-section">
@@ -26,13 +18,17 @@ export default function Blog() {
             {posts.map((post) => (
               <Link key={post.id} to={`/explore/blog/${post.id}`} className="post-card">
                 <div className="post-cover">
-                  {post.cover ? <img src={post.cover} alt="" loading="lazy" /> : <span className="post-cover-fallback" aria-hidden="true" />}
+                  {post.photos[0] ? (
+                    <img src={post.photos[0].url} alt="" loading="lazy" />
+                  ) : (
+                    <span className="post-cover-fallback" aria-hidden="true" />
+                  )}
+                  {post.photos.length > 1 && <span className="post-photo-count">{post.photos.length} photos</span>}
                 </div>
                 <div className="post-body">
                   {post.date && <p className="post-meta">{postDate(post)}</p>}
-                  <h2>{post.title}</h2>
-                  {post.excerpt && <p className="post-excerpt">{post.excerpt}</p>}
-                  <span className="post-more">Read more →</span>
+                  {post.title && <h2>{post.title}</h2>}
+                  {post.caption && <p className="post-excerpt">{post.caption}</p>}
                 </div>
               </Link>
             ))}

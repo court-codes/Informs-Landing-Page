@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useSite } from '../context/SiteContext.jsx';
 import { api } from '../api.js';
-import { STATIC_SITE } from '../staticSite.js';
 import RichText from '../components/RichText.jsx';
 import SocialLinks from '../components/SocialLinks.jsx';
 import { MailIcon } from '../components/icons.jsx';
@@ -9,7 +8,7 @@ import { MailIcon } from '../components/icons.jsx';
 const EMPTY = { name: '', email: '', subject: '', message: '' };
 
 export default function Contact() {
-  const { content } = useSite();
+  const { content, staticSite } = useSite();
   const to = content.links.contactEmail || 'informs@scu.edu';
   const [form, setForm] = useState(EMPTY);
   const [status, setStatus] = useState({ state: 'idle', message: '' });
@@ -20,7 +19,7 @@ export default function Contact() {
     e.preventDefault();
     setStatus({ state: 'sending', message: '' });
     try {
-      const { delivered } = STATIC_SITE ? { delivered: false } : await api('/contact', { method: 'POST', body: form });
+      const { delivered } = staticSite ? { delivered: false } : await api('/contact', { method: 'POST', body: form });
       if (delivered) {
         setForm(EMPTY);
         setStatus({ state: 'sent', message: 'Thanks for reaching out! The board will get back to you soon.' });

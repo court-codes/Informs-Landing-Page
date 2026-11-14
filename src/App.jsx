@@ -3,7 +3,6 @@ import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { useSite } from './context/SiteContext.jsx';
 import { setTrackingEnabled, trackPageview } from './tracking.js';
 import { pageLabel } from './siteConfig.js';
-import { STATIC_SITE } from './staticSite.js';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
 import BoardBar from './components/BoardBar.jsx';
@@ -26,7 +25,7 @@ const FormsConnection = lazy(() => import('./board/FormsConnection.jsx'));
 
 function RouteEffects() {
   const { pathname } = useLocation();
-  const { auth } = useSite();
+  const { auth, staticSite } = useSite();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -36,9 +35,9 @@ function RouteEffects() {
 
   useEffect(() => {
     if (auth.loading) return;
-    setTrackingEnabled(!STATIC_SITE && !auth.authenticated && !pathname.startsWith('/board'));
+    setTrackingEnabled(!staticSite && !auth.authenticated && !pathname.startsWith('/board'));
     trackPageview(pathname);
-  }, [pathname, auth.loading, auth.authenticated]);
+  }, [pathname, auth.loading, auth.authenticated, staticSite]);
 
   return null;
 }

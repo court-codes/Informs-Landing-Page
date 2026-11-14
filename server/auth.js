@@ -72,7 +72,7 @@ authRouter.post('/register', (req, res) => {
   const email = normalizeEmail(req.body?.email);
   const password = String(req.body?.password || '');
   if (email !== BOARD_EMAIL) {
-    return res.status(403).json({ error: `Only ${BOARD_EMAIL} can register as the board account.` });
+    return res.status(403).json({ error: 'That email can’t be registered as the board account.' });
   }
   if (password.length < MIN_PASSWORD_LENGTH) {
     return res.status(400).json({ error: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.` });

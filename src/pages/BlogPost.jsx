@@ -1,14 +1,14 @@
 import { Link, useParams } from 'react-router-dom';
 import { useSite } from '../context/SiteContext.jsx';
-import RichText from '../components/RichText.jsx';
-import { postDate } from './Blog.jsx';
+import PhotoCarousel from '../components/PhotoCarousel.jsx';
+import { normalizePost, postDate } from '../blogPosts.js';
 
 export default function BlogPost() {
   const { postId } = useParams();
   const { content } = useSite();
-  const post = content.blog.find((p) => p.id === postId);
+  const found = content.blog.find((p) => p.id === postId);
 
-  if (!post) {
+  if (!found) {
     return (
       <section className="section page-section">
         <div className="container narrow centered">
@@ -21,19 +21,20 @@ export default function BlogPost() {
     );
   }
 
+  const post = normalizePost(found);
+
   return (
     <article className="section page-section">
       <div className="container narrow">
         <Link to="/explore/blog" className="back-link">
           ← All posts
         </Link>
-        <h1 className="post-title">{post.title}</h1>
-        <p className="post-meta">
-          {postDate(post)}
-          {post.author && ` · ${post.author}`}
-        </p>
-        {post.cover && <img className="post-hero" src={post.cover} alt="" />}
-        <RichText html={post.body} className="page-text" />
+        <PhotoCarousel key={post.id} photos={post.photos} title={post.title || 'Post'} />
+        <div className="post-detail">
+          {post.date && <p className="post-meta">{postDate(post)}</p>}
+          {post.title && <h1 className="post-title">{post.title}</h1>}
+          {post.caption && <p className="post-caption">{post.caption}</p>}
+        </div>
       </div>
     </article>
   );

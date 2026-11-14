@@ -2,28 +2,28 @@ import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useSite } from '../context/SiteContext.jsx';
 import { api } from '../api.js';
-import { STATIC_SITE } from '../staticSite.js';
 
 const BOARD_EMAIL = 'informs@scu.edu';
 
 export default function BoardLogin() {
-  const { auth, refreshAuth } = useSite();
+  const { auth, refreshAuth, staticSite } = useSite();
   const navigate = useNavigate();
-  const [email, setEmail] = useState(BOARD_EMAIL);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
 
-  if (STATIC_SITE) {
+  if (staticSite) {
     return (
       <section className="section page-section">
         <div className="container auth-wrap">
           <div className="card auth-card">
             <h1>Board Login</h1>
             <p className="muted">
-              This copy of the site is published on GitHub Pages, which can only show pages. It can’t store accounts, edits, or analytics.
+              This copy of the site is published on a static host (like GitHub Pages or Cloudflare), which can only show pages. It can’t store accounts,
+              edits, or analytics.
             </p>
             <p className="muted">
               To use the board dashboard, run the site with its server: on your computer with <code>npm run dev</code>, or on a host that runs Node.js (see
@@ -44,7 +44,7 @@ export default function BoardLogin() {
     setError('');
     setNotice('');
     if (registering) {
-      if (email.trim().toLowerCase() !== BOARD_EMAIL) return setError(`Only ${BOARD_EMAIL} can register as the board account.`);
+      if (email.trim().toLowerCase() !== BOARD_EMAIL) return setError('That email can’t be registered as the board account.');
       if (password.length < 8) return setError('Password must be at least 8 characters.');
       if (password !== confirm) return setError('Passwords do not match.');
     }
@@ -72,14 +72,10 @@ export default function BoardLogin() {
     <section className="section page-section">
       <div className="container auth-wrap">
         <form className="card auth-card" onSubmit={onSubmit}>
-          <div className="auth-steps" aria-hidden="true">
-            <span className={registering ? 'active' : 'done'}>1. Register</span>
-            <span className={registering ? '' : 'active'}>2. Log in</span>
-          </div>
           <h1>{registering ? 'Register the board account' : 'Board Login'}</h1>
           <p className="muted">
             {registering
-              ? `Create the password for ${BOARD_EMAIL}. This is a one-time setup for the student board.`
+              ? 'Enter the board email and create a password. This is a one-time setup for the student board.'
               : 'Log in to view analytics and edit the website.'}
           </p>
 
