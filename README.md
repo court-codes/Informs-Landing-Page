@@ -5,7 +5,7 @@ The public website and student-board dashboard for the Santa Clara University IN
 - **Audience side:** Home, About (SCU Chapter, Meet the Team, Join the Team), Events Schedule (upcoming list, monthly calendar, past events), Explore (Blog, Gallery), Contact, and Board Login.
 - **Board side:** after logging in as `informs@scu.edu`, a top menu switches between **Analytics**, **Edit Content**, and **Audience View**.
 
-Built with React + Vite on the front end and a small Express server that stores content, uploads, and analytics as JSON files in `data/`.
+Built with React + Vite on the front end and a Cloudflare Worker (`worker/`) for the API. Content, the board account and analytics live in a Cloudflare D1 database; uploaded photos live in Cloudflare KV.
 
 ## Running it locally
 
@@ -16,15 +16,23 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173. The API runs on port 3001 and Vite proxies to it.
+Open the address Vite prints (usually http://localhost:5173). `npm run dev` runs the Worker locally too, with a local database and photo storage kept in `.wrangler/`. Nothing you do locally touches the live site.
+
+## Hosting on Cloudflare
+
+The live site is the Cloudflare Worker `informs-landing-page`, connected to this GitHub repo. Every push to `main` rebuilds and deploys it (build command `npm run build`, deploy command `npx wrangler deploy`). On the first deploy Cloudflare automatically creates the D1 database and KV storage listed in `wrangler.jsonc`; their IDs are only shown in the Cloudflare dashboard.
+
+**One-time setup: the board setup code.** On the live site, registering the board account requires a private setup code so nobody else can claim it first. In the Cloudflare dashboard, open **Workers & Pages → informs-landing-page → Settings → Variables and Secrets → Add**, choose type **Secret**, name it `BOARD_SETUP_CODE`, and enter a code only the board knows. Until it's added, registration on the live site is locked. (Locally no code is needed unless you put `BOARD_SETUP_CODE=...` in a `.dev.vars` file.)
+
+Cloudflare's free plan covers a club site comfortably (100,000 requests a day, 5 GB of database storage, 1 GB of photo storage).
 
 ## Board account
 
 1. Go to **Board Login** (top-right of the site).
-2. The first time, you'll be asked to **register**: enter `informs@scu.edu` and choose a password (8+ characters). Only that email can register, and only once.
+2. The first time, you'll be asked to **register**: enter the setup code, `informs@scu.edu`, and a password (8+ characters). Only that email can register, and only once.
 3. Then **log in** with the same email and password. You'll land on **Edit Content**.
 
-Forgot the password? Stop the server, run `npm run reset-board`, start the server again, and register again.
+Forgot the password? In the Cloudflare dashboard, open **Storage & Databases → D1**, choose this site's database, open **Console**, run `DELETE FROM settings WHERE key = 'board_user'; DELETE FROM sessions;`, then register again with the setup code. Site content isn't affected.
 
 ## Editing content
 
@@ -53,21 +61,8 @@ Visits by logged-in board members are not counted.
 
 ## Contact form
 
-Messages go to `informs@scu.edu`. To have the server send them directly, fill in the `SMTP_*` values in `.env` (for example a Gmail account with an App Password). Without SMTP settings, pressing **Submit** opens the visitor's email app with the message pre-filled to `informs@scu.edu`.
+Pressing **Submit** opens the visitor's email app with the message pre-filled to the contact email (`informs@scu.edu` by default).
 
-## Static hosts: GitHub Pages and Cloudflare Pages (public pages only)
+## GitHub Pages (read-only preview)
 
-The site detects when it's on a static host (no API server) and switches to a read-only preview. It shows the built-in starting content from `server/defaultContent.js`. Board login, editing, uploads and analytics don't work there, and the Contact form opens the visitor's email app. For the full site, deploy with a Node host as described below.
-
-- **GitHub Pages:** every push to `main` builds the site and publishes it to `https://<your-username>.github.io/Informs-Landing-Page/` using `.github/workflows/deploy-pages.yml`. One-time setup: on GitHub, open the repo's **Settings → Pages** and set **Source** to **GitHub Actions**.
-- **Cloudflare Pages:** connect the repo with build command `npm run build` and output directory `dist`. No environment variables are needed.
-
-## Deploying
-
-```bash
-npm install
-npm run build
-npm start          # serves the site and API on PORT (default 3001)
-```
-
-Host it anywhere that runs a persistent Node process with a writable disk (Render, Railway, Fly.io, a VM, etc.). The `data/` folder holds all content, uploaded images, the board account and analytics, so keep it on persistent storage and back it up. Set `DATA_DIR` to put it somewhere else.
+Every push to `main` also publishes a static copy to `https://<your-username>.github.io/Informs-Landing-Page/` using `.github/workflows/deploy-pages.yml` (one-time setup: **Settings → Pages → Source: GitHub Actions**). That copy shows only the built-in starting content from `shared/defaultContent.js`; board login, editing, uploads and analytics work only on the Cloudflare site.

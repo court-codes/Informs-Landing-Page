@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Must match the Worker name in the Cloudflare dashboard.
+  "name": "informs-landing-page",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/uploads/*"]
+  },
+  // No IDs on purpose: Cloudflare creates the database and storage on the first deploy.
+  "d1_databases": [{ "binding": "DB", "database_name": "informs-landing-page-db" }],
+  "kv_namespaces": [{ "binding": "UPLOADS" }],
+  "observability": { "enabled": true }
+}

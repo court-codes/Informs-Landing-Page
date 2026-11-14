@@ -1,13 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { api } from '../api.js';
 import { STATIC_SITE } from '../staticSite.js';
-import { defaultContent } from '../../server/defaultContent.js';
+import { defaultContent } from '../../shared/defaultContent.js';
 
 const SiteContext = createContext(null);
 
 const SIGNED_OUT = { loading: false, registered: false, authenticated: false, email: null };
 
-// Static hosts (GitHub Pages, Cloudflare) have no API: /api/content comes back as a 404 or as the app's own HTML.
+// Static hosts (e.g. GitHub Pages) have no API: /api/content comes back as a 404 or as the app's own HTML.
 async function loadContent() {
   if (STATIC_SITE) return { content: defaultContent, staticSite: true };
   const res = await fetch('/api/content', { credentials: 'same-origin' });

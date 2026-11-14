@@ -1,78 +1,63 @@
-import crypto from 'node:crypto';
-import { Router } from 'express';
-import { analyticsDb } from './store.js';
-import { requireAuth } from './auth.js';
+import { json, noContent, readJson } from './http.js';
 
 const CTAS = ['join', 'newsletter'];
-const MAX_EVENTS = 200_000;
 const MAX_ENGAGEMENT_SECONDS = 60 * 60;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 const isId = (value) => typeof value === 'string' && /^[a-zA-Z0-9-]{8,64}$/.test(value);
 const cleanPath = (value) => (typeof value === 'string' && value.startsWith('/') ? value.slice(0, 120) : null);
 
-function push(list, item) {
-  list.push(item);
-  if (list.length > MAX_EVENTS) list.splice(0, list.length - MAX_EVENTS);
-  analyticsDb.save();
+export async function pageview(request, env) {
+  const { visitorId, sessionId, path: rawPath } = await readJson(request);
+  const path = cleanPath(rawPath);
+  if (!isId(visitorId) || !isId(sessionId) || !path) return json({ error: 'Invalid pageview' }, 400);
+  const id = crypto.randomUUID();
+  await env.DB.prepare('INSERT INTO pageviews (id, v, s, path, ts, secs) VALUES (?, ?, ?, ?, ?, 0)')
+    .bind(id, visitorId, sessionId, path, Date.now())
+    .run();
+  return json({ id });
 }
 
-export const analyticsRouter = Router();
+export async function engagement(request, env) {
+  const { id, seconds: rawSeconds } = await readJson(request);
+  const seconds = Number(rawSeconds);
+  if (!isId(id) || !Number.isFinite(seconds) || seconds < 0) return new Response(null, { status: 400 });
+  await env.DB.prepare('UPDATE pageviews SET secs = MAX(secs, ?) WHERE id = ?')
+    .bind(Math.min(Math.round(seconds), MAX_ENGAGEMENT_SECONDS), id)
+    .run();
+  return noContent();
+}
 
-analyticsRouter.post('/pageview', (req, res) => {
-  const { visitorId, sessionId } = req.body || {};
-  const path = cleanPath(req.body?.path);
-  if (!isId(visitorId) || !isId(sessionId) || !path) return res.status(400).json({ error: 'Invalid pageview' });
-  const id = crypto.randomUUID();
-  push(analyticsDb.data.pageviews, { id, v: visitorId, s: sessionId, path, ts: Date.now(), secs: 0 });
-  res.json({ id });
-});
+export async function click(request, env) {
+  const { visitorId, cta, source, path: rawPath } = await readJson(request);
+  if (!isId(visitorId) || !CTAS.includes(cta)) return new Response(null, { status: 400 });
+  await env.DB.prepare('INSERT INTO clicks (v, cta, source, path, ts) VALUES (?, ?, ?, ?, ?)')
+    .bind(visitorId, cta, typeof source === 'string' ? source.slice(0, 40) : cta, cleanPath(rawPath), Date.now())
+    .run();
+  return noContent();
+}
 
-analyticsRouter.post('/engagement', (req, res) => {
-  const { id } = req.body || {};
-  const seconds = Number(req.body?.seconds);
-  if (!isId(id) || !Number.isFinite(seconds) || seconds < 0) return res.status(400).end();
-  const pageviews = analyticsDb.data.pageviews;
-  for (let i = pageviews.length - 1; i >= 0 && i >= pageviews.length - 5000; i--) {
-    if (pageviews[i].id === id) {
-      pageviews[i].secs = Math.max(pageviews[i].secs, Math.min(Math.round(seconds), MAX_ENGAGEMENT_SECONDS));
-      analyticsDb.save();
-      break;
-    }
-  }
-  res.status(204).end();
-});
-
-analyticsRouter.post('/click', (req, res) => {
-  const { visitorId, cta, source } = req.body || {};
-  const path = cleanPath(req.body?.path);
-  if (!isId(visitorId) || !CTAS.includes(cta)) return res.status(400).end();
-  push(analyticsDb.data.clicks, {
-    v: visitorId,
-    cta,
-    source: typeof source === 'string' ? source.slice(0, 40) : cta,
-    path,
-    ts: Date.now(),
-  });
-  res.status(204).end();
-});
-
-analyticsRouter.get('/summary', requireAuth, (req, res) => {
-  const days = Number(req.query.days) || 0;
-  const tzOffsetMin = Number(req.query.tz) || 0;
+export async function summary(request, env) {
+  const params = new URL(request.url).searchParams;
+  const days = Number(params.get('days')) || 0;
+  const tzOffsetMin = Number(params.get('tz')) || 0;
   const now = Date.now();
   const start = days > 0 ? now - days * DAY_MS : 0;
 
-  const { pageviews: allPageviews, clicks: allClicks } = analyticsDb.data;
-  const pageviews = allPageviews.filter((p) => p.ts >= start);
-  const clicks = allClicks.filter((c) => c.ts >= start);
+  const [pageviewRows, clickRows, firstRow] = await env.DB.batch([
+    env.DB.prepare('SELECT v, s, path, ts, secs FROM pageviews WHERE ts >= ?').bind(start),
+    env.DB.prepare('SELECT v, cta, source FROM clicks WHERE ts >= ?').bind(start),
+    env.DB.prepare('SELECT MIN(ts) AS ts FROM pageviews'),
+  ]);
+  const pageviews = pageviewRows.results;
+  const clicks = clickRows.results;
 
   const visitors = new Set(pageviews.map((p) => p.v));
   const sessions = new Set(pageviews.map((p) => p.s));
   const totalSeconds = pageviews.reduce((sum, p) => sum + p.secs, 0);
 
   const dayKey = (ts) => new Date(ts - tzOffsetMin * 60_000).toISOString().slice(0, 10);
-  const firstTs = days > 0 ? start : (allPageviews[0]?.ts ?? now);
+  const firstTs = days > 0 ? start : (firstRow.results[0]?.ts ?? now);
   const chartDays = Math.min(Math.max(Math.ceil((now - firstTs) / DAY_MS), 1), 365);
   const daily = new Map();
   for (let i = chartDays - 1; i >= 0; i--) {
@@ -113,7 +98,7 @@ analyticsRouter.get('/summary', requireAuth, (req, res) => {
     }),
   );
 
-  res.json({
+  return json({
     range: { days, start, end: now },
     totals: {
       visitors: visitors.size,
@@ -128,4 +113,4 @@ analyticsRouter.get('/summary', requireAuth, (req, res) => {
       .sort((a, b) => b.views - a.views),
     conversions,
   });
-});
+}
