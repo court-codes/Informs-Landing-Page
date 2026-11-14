@@ -49,24 +49,7 @@ Visits by logged-in board members are not counted.
 
 - **Engagement:** unique visitors, visits, page views, and a daily visitors chart.
 - **Average engagement time:** active (tab-visible) time per visit, plus a per-page breakdown.
-- **Conversion rate** for Join INFORMS and Newsletter:
-  - *Click-through rate* is the share of visitors who clicked the button.
-  - *Form completion rate* is the number of Google Form submissions divided by the number of people who clicked.
-
-### Connecting Google Forms
-
-Google Forms are hosted by Google, so the site reads each form's response count through a small Apps Script published as a web app. This works on `localhost` and on a deployed site.
-
-In the board dashboard, go to **Analytics → Google Forms connection**. The page has a ready-to-paste script (the same one for both forms) and these steps:
-
-1. Open the form in Google Forms as an editor, then **⋮ → Apps Script**.
-2. Paste the script and save.
-3. **Deploy → New deployment → Web app**, with *Execute as: Me* and *Who has access: Anyone*. Deploy and approve the permissions.
-4. Paste the **Web app URL** (ends in `/exec`) into that form's box on the dashboard and click **Connect**.
-
-The site re-checks the counts every few minutes while the board is viewing Analytics. The script only shares submission times, never answers, and only to requests that include the connection secret. The secret is generated automatically. To manage it yourself instead, set `FORM_WEBHOOK_SECRET` in `.env`.
-
-Some school Google accounts don't allow the *Anyone* access option. If it's missing, deploy the script from a personal Google account that has edit access to the form.
+- **Conversion rate:** the click-through rate, meaning the share of visitors who clicked **Join INFORMS** or **Join Newsletter**.
 
 ## Contact form
 

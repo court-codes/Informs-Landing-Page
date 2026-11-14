@@ -33,7 +33,6 @@ export const PAGE_TITLES = {
   '/board/login': 'Board Login',
   '/board/analytics': 'Analytics',
   '/board/edit': 'Edit Content',
-  '/board/forms': 'Google Forms connection',
 };
 
 export function pageLabel(path) {

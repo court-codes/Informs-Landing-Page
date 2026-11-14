@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { formatDuration } from '../dates.js';
 import { pageLabel } from '../siteConfig.js';
@@ -45,11 +44,10 @@ function DailyChart({ daily }) {
   );
 }
 
-function Funnel({ title, color, visitors, data, completionLabel }) {
+function Funnel({ title, color, visitors, data }) {
   const steps = [
     { label: 'Visitors', value: visitors, rate: null },
     { label: 'Clicked the button', value: data.uniqueClickers, rate: data.clickRate, rateLabel: 'of visitors' },
-    { label: completionLabel, value: data.completions, rate: data.completionRate, rateLabel: 'of clickers' },
   ];
   const max = Math.max(1, visitors);
   return (
@@ -59,10 +57,6 @@ function Funnel({ title, color, visitors, data, completionLabel }) {
         <div>
           <span className="kpi-value">{pct(data.clickRate)}</span>
           <span className="kpi-label">Click-through rate</span>
-        </div>
-        <div>
-          <span className="kpi-value">{pct(data.completionRate)}</span>
-          <span className="kpi-label">Form completion rate</span>
         </div>
       </div>
       <ul className="funnel-steps">
@@ -166,42 +160,11 @@ export default function Analytics() {
             )}
           </div>
 
-          <div className="board-section-row">
-            <h2 className="board-section-title">Conversion rate</h2>
-            <Link to="/board/forms" className="btn btn-ghost btn-sm">
-              Google Forms connection
-            </Link>
-          </div>
+          <h2 className="board-section-title">Conversion rate</h2>
           <div className="two-col">
-            <Funnel
-              title="Join INFORMS"
-              color="blue"
-              visitors={data.totals.visitors}
-              data={data.conversions.join}
-              completionLabel="Completed the Google Form"
-            />
-            <Funnel
-              title="Newsletter signups"
-              color="green"
-              visitors={data.totals.visitors}
-              data={data.conversions.newsletter}
-              completionLabel="Completed the signup form"
-            />
+            <Funnel title="Join INFORMS" color="blue" visitors={data.totals.visitors} data={data.conversions.join} />
+            <Funnel title="Newsletter signups" color="green" visitors={data.totals.visitors} data={data.conversions.newsletter} />
           </div>
-
-          {(!data.formsConnected?.join || !data.formsConnected?.newsletter) && (
-            <div className="card notice-card">
-              <h3>
-                {!data.formsConnected?.join && !data.formsConnected?.newsletter
-                  ? 'Your Google Forms aren’t connected yet'
-                  : `The ${data.formsConnected?.join ? 'Newsletter' : 'Join INFORMS'} form isn’t connected yet`}
-              </h3>
-              <p>Form completions show up here once each Google Form is connected to the site. It takes about two minutes per form and works on localhost too.</p>
-              <Link to="/board/forms" className="btn btn-primary btn-sm">
-                Connect Google Forms
-              </Link>
-            </div>
-          )}
         </>
       )}
     </div>

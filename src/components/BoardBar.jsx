@@ -25,10 +25,7 @@ export default function BoardBar() {
       <div className="board-bar-inner">
         <span className="board-bar-title">SCU INFORMS Board</span>
         <nav className="board-tabs" aria-label="Board">
-          <NavLink
-            to="/board/analytics"
-            className={({ isActive }) => `board-tab${isActive || pathname === '/board/forms' ? ' active' : ''}`}
-          >
+          <NavLink to="/board/analytics" className="board-tab">
             Analytics
           </NavLink>
           <NavLink to="/board/edit" className="board-tab">

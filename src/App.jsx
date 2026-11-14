@@ -21,7 +21,6 @@ import NotFound from './pages/NotFound.jsx';
 
 const Analytics = lazy(() => import('./board/Analytics.jsx'));
 const EditContent = lazy(() => import('./board/EditContent.jsx'));
-const FormsConnection = lazy(() => import('./board/FormsConnection.jsx'));
 
 function RouteEffects() {
   const { pathname } = useLocation();
@@ -105,7 +104,6 @@ export default function App() {
         <Route path="board" element={<RequireBoard />}>
           <Route index element={<Navigate to="/board/edit" replace />} />
           <Route path="analytics" element={<Analytics />} />
-          <Route path="forms" element={<FormsConnection />} />
           <Route path="edit" element={<EditContent />} />
         </Route>
       </Routes>

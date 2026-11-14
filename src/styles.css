@@ -1898,117 +1898,6 @@ textarea {
   margin: 36px 0 14px;
 }
 
-.board-section-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 36px 0 14px;
-}
-
-.board-section-row .board-section-title {
-  margin: 0;
-}
-
-.forms-card {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.forms-card-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.forms-card-head h2 {
-  font-size: 1.3rem;
-  margin: 0;
-}
-
-.forms-card-head .badge {
-  font-size: 0.82rem;
-  padding: 4px 12px;
-}
-
-.forms-meta {
-  margin: 0;
-  font-size: 0.92rem;
-}
-
-.forms-card h2 {
-  font-size: 1.3rem;
-  margin: 0;
-}
-
-.forms-url-row {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.forms-url-row .grow {
-  flex: 1 1 320px;
-}
-
-.forms-url-row .btn {
-  height: 44px;
-}
-
-.badge-warning {
-  background: var(--accent-50);
-  color: #8a5300;
-}
-
-.forms-steps {
-  margin: 0;
-  padding-left: 1.3em;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.script-box {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-}
-
-.script-box-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 8px 8px 14px;
-  background: #f6f8fc;
-  border-bottom: 1px solid var(--border);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--muted);
-}
-
-.script-box pre {
-  margin: 0;
-  padding: 14px;
-  max-height: 260px;
-  overflow: auto;
-  background: var(--blue-darker);
-  color: #e3e9f8;
-  font-size: 0.8rem;
-  line-height: 1.5;
-}
-
-.script-box code {
-  background: none;
-  padding: 0;
-  font-size: inherit;
-}
-
 .pill-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -2222,20 +2111,6 @@ textarea {
 
 .funnel-green .funnel-fill {
   background: var(--green);
-}
-
-.funnel-steps li:last-child .funnel-fill {
-  background: var(--accent);
-}
-
-.notice-card {
-  margin-top: 24px;
-  background: var(--accent-50);
-  border-color: #f7d9a3;
-}
-
-.notice-card p {
-  margin: 0;
 }
 
 .hint {
