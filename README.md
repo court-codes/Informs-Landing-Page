@@ -38,7 +38,7 @@ Everything below is in **Edit Content**. Click **Save changes** to publish. Unsa
 | Meet the Team | Profile photo, name, position, graduation year, major |
 | SCU Chapter Photos | Images shown on About → SCU Chapter |
 | Blog | Photo posts with a title, caption and multiple photos. The first photo is the thumbnail; visitors flip through the rest with arrows |
-| Gallery | Photos and captions |
+| Gallery | Photo posts with a title, date, caption and multiple photos. Each post is a card; clicking it opens the photos full-screen with arrows |
 | Logos | SCU INFORMS header logo and the Santa Clara University footer logo |
 
 While browsing the live site logged in, the **Edit this page** link in the board bar jumps straight to the right editor tab.

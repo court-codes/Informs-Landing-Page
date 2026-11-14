@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { useSite } from '../context/SiteContext.jsx';
 import PhotoCarousel from '../components/PhotoCarousel.jsx';
-import { normalizePost, postDate } from '../blogPosts.js';
+import { normalizePost, postDate } from '../photoPosts.js';
 
 export default function BlogPost() {
   const { postId } = useParams();

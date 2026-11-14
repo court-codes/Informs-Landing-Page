@@ -1534,76 +1534,62 @@ code {
   margin-bottom: 8px;
 }
 
-.gallery-card {
-  position: relative;
-  padding: 0;
-  border: none;
-  border-radius: var(--radius);
-  overflow: hidden;
-  cursor: zoom-in;
-  background: var(--blue-50);
-  box-shadow: var(--shadow);
-}
-
-.gallery-card img {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  transition: transform 0.3s;
-}
-
-.gallery-card:hover img {
-  transform: scale(1.04);
-}
-
-.gallery-caption {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 28px 14px 12px;
-  background: linear-gradient(transparent, rgba(11, 28, 77, 0.85));
-  color: #fff;
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-align: left;
-}
-
 .lightbox {
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: rgba(8, 18, 48, 0.92);
-  display: grid;
-  place-items: center;
+  background: rgba(8, 18, 48, 0.94);
+  display: flex;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 40px 72px;
 }
 
-.lightbox figure {
-  margin: 0;
-  max-width: 100%;
-  max-height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* margin: auto (not align-items: center) keeps the top reachable when a long caption makes the post taller than the screen. */
+.lightbox-post {
+  margin: auto;
+  width: min(100%, 1000px);
 }
 
-.lightbox img {
-  max-height: 80vh;
-  max-width: 100%;
-  border-radius: var(--radius-sm);
-  object-fit: contain;
+.lightbox .carousel-frame {
+  aspect-ratio: auto;
+  height: min(70vh, 100vw);
+  background: transparent;
 }
 
-.lightbox figcaption {
+.lightbox .carousel-dots button {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.lightbox .carousel-dots button.active {
+  background: #fff;
+}
+
+.lightbox-details {
+  margin-top: 18px;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.lightbox-details .post-meta {
+  color: var(--green-bright);
+}
+
+.lightbox-details h2 {
   color: #fff;
-  margin-top: 14px;
-  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 8px;
 }
 
-.lightbox-close,
-.lightbox-nav {
-  position: absolute;
+.lightbox-details .post-caption {
+  max-width: 70ch;
+  margin: 0;
+}
+
+.lightbox-close {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1;
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
   border: none;
@@ -1613,26 +1599,10 @@ code {
   display: grid;
   place-items: center;
   cursor: pointer;
-  font-size: 1.8rem;
-  line-height: 1;
 }
 
-.lightbox-close:hover,
-.lightbox-nav:hover {
+.lightbox-close:hover {
   background: rgba(255, 255, 255, 0.24);
-}
-
-.lightbox-close {
-  top: 20px;
-  right: 20px;
-}
-
-.lightbox-nav.prev {
-  left: 16px;
-}
-
-.lightbox-nav.next {
-  right: 16px;
 }
 
 /* ---------- Forms ---------- */
@@ -2792,12 +2762,17 @@ textarea {
   }
 
   .lightbox {
-    padding: 64px 12px;
+    padding: 72px 12px 24px;
   }
 
-  .lightbox-nav {
-    top: auto;
-    bottom: 16px;
+  .lightbox-close {
+    top: 14px;
+    right: 14px;
+  }
+
+  .lightbox .carousel-arrow {
+    width: 40px;
+    height: 40px;
   }
 
   .board-bar-actions {

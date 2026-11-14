@@ -1,84 +1,65 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useSite } from '../context/SiteContext.jsx';
 import RichText from '../components/RichText.jsx';
+import PostCard from '../components/PostCard.jsx';
+import PhotoCarousel from '../components/PhotoCarousel.jsx';
 import { CloseIcon } from '../components/icons.jsx';
+import { galleryPosts, postDate, publishedPosts } from '../photoPosts.js';
 
-export default function Gallery() {
-  const { content } = useSite();
-  const items = content.gallery.filter((item) => item.url);
-  const [openIndex, setOpenIndex] = useState(null);
-  const open = openIndex !== null ? items[openIndex] : null;
-
+function PostLightbox({ post, onClose }) {
   useEffect(() => {
-    if (openIndex === null) return;
-    const onKey = (e) => {
-      if (e.key === 'Escape') setOpenIndex(null);
-      if (e.key === 'ArrowRight') setOpenIndex((i) => (i + 1) % items.length);
-      if (e.key === 'ArrowLeft') setOpenIndex((i) => (i - 1 + items.length) % items.length);
-    };
+    const onKey = (e) => e.key === 'Escape' && onClose();
     document.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
     return () => {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = '';
     };
-  }, [openIndex, items.length]);
+  }, [onClose]);
+
+  const title = post.title || 'Gallery post';
+
+  return (
+    <div className="lightbox" role="dialog" aria-modal="true" aria-label={title} onClick={onClose}>
+      <button type="button" className="lightbox-close" aria-label="Close" autoFocus>
+        <CloseIcon />
+      </button>
+      <div className="lightbox-post" onClick={(e) => e.stopPropagation()}>
+        <PhotoCarousel photos={post.photos} title={title} />
+        <div className="lightbox-details">
+          {post.date && <p className="post-meta">{postDate(post)}</p>}
+          {post.title && <h2>{post.title}</h2>}
+          {post.caption && <p className="post-caption">{post.caption}</p>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function Gallery() {
+  const { content } = useSite();
+  const posts = publishedPosts(galleryPosts(content.gallery));
+  const [params, setParams] = useSearchParams();
+  const open = posts.find((p) => p.id === params.get('post'));
+  const close = useCallback(() => setParams({}, { replace: true }), [setParams]);
 
   return (
     <section className="section page-section">
       <div className="container">
         <RichText html={content.text.gallery.intro} className="page-text centered" />
-        {items.length === 0 ? (
+        {posts.length === 0 ? (
           <p className="empty-state">Photos from our events will be posted here.</p>
         ) : (
-          <div className="card-grid gallery-grid">
-            {items.map((item, index) => (
-              <button key={item.id} type="button" className="gallery-card" onClick={() => setOpenIndex(index)}>
-                <img src={item.url} alt={item.caption || 'SCU INFORMS event photo'} loading="lazy" />
-                {item.caption && <span className="gallery-caption">{item.caption}</span>}
-              </button>
+          <div className="card-grid">
+            {posts.map((post) => (
+              <PostCard key={post.id} post={post} to={`?post=${post.id}`} replace />
             ))}
           </div>
         )}
       </div>
 
-      {open && (
-        <div className="lightbox" role="dialog" aria-modal="true" aria-label={open.caption || 'Photo'} onClick={() => setOpenIndex(null)}>
-          <button type="button" className="lightbox-close" aria-label="Close">
-            <CloseIcon />
-          </button>
-          {items.length > 1 && (
-            <>
-              <button
-                type="button"
-                className="lightbox-nav prev"
-                aria-label="Previous photo"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpenIndex((i) => (i - 1 + items.length) % items.length);
-                }}
-              >
-                ‹
-              </button>
-              <button
-                type="button"
-                className="lightbox-nav next"
-                aria-label="Next photo"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpenIndex((i) => (i + 1) % items.length);
-                }}
-              >
-                ›
-              </button>
-            </>
-          )}
-          <figure onClick={(e) => e.stopPropagation()}>
-            <img src={open.url} alt={open.caption || 'SCU INFORMS event photo'} />
-            {open.caption && <figcaption>{open.caption}</figcaption>}
-          </figure>
-        </div>
-      )}
+      {open && <PostLightbox key={open.id} post={open} onClose={close} />}
     </section>
   );
 }

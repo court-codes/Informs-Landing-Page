@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSite } from '../context/SiteContext.jsx';
+import { blogPosts, galleryPosts } from '../photoPosts.js';
 import { setIn } from './listUtils.js';
 import TextEditor from './editors/TextEditor.jsx';
 import ButtonsEditor from './editors/ButtonsEditor.jsx';
 import EventsEditor from './editors/EventsEditor.jsx';
 import TeamEditor from './editors/TeamEditor.jsx';
 import ImageListEditor from './editors/ImageListEditor.jsx';
-import BlogEditor from './editors/BlogEditor.jsx';
+import PhotoPostsEditor from './editors/PhotoPostsEditor.jsx';
 import BrandingEditor from './editors/BrandingEditor.jsx';
 
 const TABS = [
@@ -122,14 +123,28 @@ export default function EditContent() {
             viewPath="/about/chapter"
           />
         )}
-        {tab === 'blog' && <BlogEditor {...props} />}
+        {tab === 'blog' && (
+          <PhotoPostsEditor
+            {...props}
+            contentKey="blog"
+            toPosts={blogPosts}
+            heading="Blog"
+            description="Each post has a title, a caption, and one or more photos. Posts are shown newest first."
+            addLabel="+ New post"
+            emptyText="No posts yet. Click “New post” to create one."
+            viewPath={(post) => `/explore/blog/${post.id}`}
+          />
+        )}
         {tab === 'gallery' && (
-          <ImageListEditor
-            title="Gallery"
-            description="Photos shown on the Explore → Gallery page, in this order."
-            items={draft.gallery}
-            onChange={(next) => update(['gallery'], next)}
-            viewPath="/explore/gallery"
+          <PhotoPostsEditor
+            {...props}
+            contentKey="gallery"
+            toPosts={galleryPosts}
+            heading="Gallery"
+            description="Each post has a title, a date, a caption, and one or more photos. Posts are shown newest first; visitors click a post to view its photos full-screen."
+            addLabel="Upload Post"
+            emptyText="No posts yet. Click “Upload Post” to create one."
+            viewPath={(post) => `/explore/gallery?post=${post.id}`}
           />
         )}
         {tab === 'branding' && <BrandingEditor {...props} />}

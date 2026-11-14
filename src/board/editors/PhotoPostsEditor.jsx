@@ -2,13 +2,12 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { newId } from '../../api.js';
 import { dayKey } from '../../dates.js';
-import { normalizePost } from '../../blogPosts.js';
 import PhotoListField from '../PhotoListField.jsx';
 import { removeItem, updateItem } from '../listUtils.js';
 
-export default function BlogEditor({ draft, update }) {
-  const posts = draft.blog.map(normalizePost);
-  const setPosts = (next) => update(['blog'], next);
+export default function PhotoPostsEditor({ draft, update, contentKey, toPosts, heading, description, addLabel, emptyText, viewPath }) {
+  const posts = toPosts(draft[contentKey]);
+  const setPosts = (next) => update([contentKey], next);
   const [openId, setOpenId] = useState(null);
 
   const addPost = () => {
@@ -21,15 +20,15 @@ export default function BlogEditor({ draft, update }) {
     <div className="editor-panel">
       <div className="editor-head">
         <div>
-          <h2>Blog</h2>
-          <p className="muted">Each post has a title, a caption, and one or more photos. Posts are shown newest first.</p>
+          <h2>{heading}</h2>
+          <p className="muted">{description}</p>
         </div>
         <button type="button" className="btn btn-primary btn-sm" onClick={addPost}>
-          + New post
+          {addLabel}
         </button>
       </div>
 
-      {posts.length === 0 && <p className="empty-state">No posts yet. Click “New post” to create one.</p>}
+      {posts.length === 0 && <p className="empty-state">{emptyText}</p>}
 
       {posts.map((post, index) => {
         const open = openId === post.id;
@@ -71,7 +70,7 @@ export default function BlogEditor({ draft, update }) {
                 </div>
                 <div className="field-actions">
                   {(post.title || post.photos.length > 0) && (
-                    <Link to={`/explore/blog/${post.id}`} className="btn btn-ghost btn-sm">
+                    <Link to={viewPath(post)} className="btn btn-ghost btn-sm">
                       View post ↗
                     </Link>
                   )}
