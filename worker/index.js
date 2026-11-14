@@ -61,7 +61,6 @@ const ROUTES = {
   'POST /api/uploads': upload,
   'POST /api/contact': contact,
   'GET /api/auth/status': auth.status,
-  'POST /api/auth/register': auth.register,
   'POST /api/auth/login': auth.login,
   'POST /api/auth/logout': auth.logout,
   'POST /api/analytics/pageview': analytics.pageview,

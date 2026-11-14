@@ -16,23 +16,21 @@ npm install
 npm run dev
 ```
 
-Open the address Vite prints (usually http://localhost:5173). `npm run dev` runs the Worker locally too, with a local database and photo storage kept in `.wrangler/`. Nothing you do locally touches the live site.
+Open the address Vite prints (usually http://localhost:5173). `npm run dev` runs the Worker locally too.
+
+**Use the live board account and content on localhost (one time):** run `npm run link-cloudflare`. It signs you in to Cloudflare in your browser if needed, then points localhost at the live D1 database and photo storage by adding their IDs to `wrangler.jsonc`. Commit that change. After that, localhost and the live site share the same board login and content, so **edits made on localhost change the live site**. Until you link, localhost uses an empty local database in `.wrangler/`.
 
 ## Hosting on Cloudflare
 
-The live site is the Cloudflare Worker `informs-landing-page`, connected to this GitHub repo. Every push to `main` rebuilds and deploys it (build command `npm run build`, deploy command `npx wrangler deploy`). On the first deploy Cloudflare automatically creates the D1 database and KV storage listed in `wrangler.jsonc`; their IDs are only shown in the Cloudflare dashboard.
-
-**One-time setup: the board setup code.** On the live site, registering the board account requires a private setup code so nobody else can claim it first. In the Cloudflare dashboard, open **Workers & Pages → informs-landing-page → Settings → Variables and Secrets → Add**, choose type **Secret**, name it `BOARD_SETUP_CODE`, and enter a code only the board knows. Until it's added, registration on the live site is locked. (Locally no code is needed unless you put `BOARD_SETUP_CODE=...` in a `.dev.vars` file.)
+The live site is the Cloudflare Worker `informs-landing-page`, connected to this GitHub repo. Every push to `main` rebuilds and deploys it (build command `npm run build`, deploy command `npx wrangler deploy`). On the first deploy Cloudflare automatically created the D1 database and KV storage listed in `wrangler.jsonc`.
 
 Cloudflare's free plan covers a club site comfortably (100,000 requests a day, 5 GB of database storage, 1 GB of photo storage).
 
 ## Board account
 
-1. Go to **Board Login** (top-right of the site).
-2. The first time, you'll be asked to **register**: enter the setup code, `informs@scu.edu`, and a password (8+ characters). Only that email can register, and only once.
-3. Then **log in** with the same email and password. You'll land on **Edit Content**.
+There's one board account, `informs@scu.edu`. Go to **Board Login** (top-right of the site), enter the email and password, and you'll land on **Edit Content**. There's no sign-up page.
 
-Forgot the password? In the Cloudflare dashboard, open **Storage & Databases → D1**, choose this site's database, open **Console**, run `DELETE FROM settings WHERE key = 'board_user'; DELETE FROM sessions;`, then register again with the setup code. Site content isn't affected.
+Forgot the password? Run `npm run set-board-password`. It asks for a new password and saves it to the live database, which signs everyone out. Site content isn't affected.
 
 ## Editing content
 

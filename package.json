@@ -8,7 +8,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite build && vite preview",
-    "deploy": "vite build && wrangler deploy"
+    "deploy": "vite build && wrangler deploy",
+    "link-cloudflare": "node scripts/link-cloudflare.mjs",
+    "set-board-password": "node scripts/set-board-password.mjs"
   },
   "dependencies": {
     "@tiptap/pm": "^3.34.0",

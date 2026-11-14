@@ -5,7 +5,7 @@ import { defaultContent } from '../../shared/defaultContent.js';
 
 const SiteContext = createContext(null);
 
-const SIGNED_OUT = { loading: false, registered: false, authenticated: false, email: null };
+const SIGNED_OUT = { loading: false, authenticated: false, email: null };
 
 // Static hosts (e.g. GitHub Pages) have no API: /api/content comes back as a 404 or as the app's own HTML.
 async function loadContent() {
