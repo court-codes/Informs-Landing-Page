@@ -43,8 +43,7 @@ export const contentDb = new JsonFile('content.json', { content: defaultContent 
 export const analyticsDb = new JsonFile('analytics.json', {
   pageviews: [],
   clicks: [],
-  submissions: [],
-  formTests: {},
+  formResponses: {},
 });
 
 contentDb.data.content = mergeDefaults(defaultContent, contentDb.data.content);

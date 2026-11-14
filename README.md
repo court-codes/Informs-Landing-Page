@@ -58,20 +58,28 @@ Visits by logged-in board members are not counted.
 
 ### Connecting Google Forms
 
-Google Forms are hosted by Google, so the site can't see submissions on its own. Each form gets a small Apps Script that tells the site when someone submits.
+Google Forms are hosted by Google, so the site reads each form's response count through a small Apps Script published as a web app. This works on `localhost` and on a deployed site.
 
-In the board dashboard, go to **Analytics → Google Forms connection**. For each form, the page gives you a ready-to-paste script plus step-by-step instructions:
+In the board dashboard, go to **Analytics → Google Forms connection**. The page has a ready-to-paste script (the same one for both forms) and these steps:
 
 1. Open the form in Google Forms as an editor, then **⋮ → Apps Script**.
 2. Paste the script and save.
-3. Run the `setup` function once and approve the permissions. This installs the on-submit trigger and sends a test to the site.
-4. Click **Refresh status** on the dashboard. The form should show **Connected**.
+3. **Deploy → New deployment → Web app**, with *Execute as: Me* and *Who has access: Anyone*. Deploy and approve the permissions.
+4. Paste the **Web app URL** (ends in `/exec`) into that form's box on the dashboard and click **Connect**.
 
-Google has to be able to reach the site, so do this from the live, deployed site rather than `localhost`. Test pings are not counted as completions. The connection secret is generated automatically. To manage it yourself instead, set `FORM_WEBHOOK_SECRET` in `.env`.
+The site re-checks the counts every few minutes while the board is viewing Analytics. The script only shares submission times, never answers, and only to requests that include the connection secret. The secret is generated automatically. To manage it yourself instead, set `FORM_WEBHOOK_SECRET` in `.env`.
+
+Some school Google accounts don't allow the *Anyone* access option. If it's missing, deploy the script from a personal Google account that has edit access to the form.
 
 ## Contact form
 
 Messages go to `informs@scu.edu`. To have the server send them directly, fill in the `SMTP_*` values in `.env` (for example a Gmail account with an App Password). Without SMTP settings, pressing **Submit** opens the visitor's email app with the message pre-filled to `informs@scu.edu`.
+
+## GitHub Pages (public pages only)
+
+Every push to `main` builds the site and publishes it to `https://<your-username>.github.io/informs_landing_page/` using `.github/workflows/deploy-pages.yml`. One-time setup: on GitHub, open the repo's **Settings → Pages** and set **Source** to **GitHub Actions**.
+
+GitHub Pages can only host plain files, so that copy is a read-only preview. It shows the built-in starting content from `server/defaultContent.js`. Board login, editing, uploads and analytics don't work there, and the Contact form opens the visitor's email app. For the full site, deploy with a Node host as described below.
 
 ## Deploying
 

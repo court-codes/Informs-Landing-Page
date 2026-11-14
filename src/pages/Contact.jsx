@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSite } from '../context/SiteContext.jsx';
 import { api } from '../api.js';
+import { STATIC_SITE } from '../staticSite.js';
 import RichText from '../components/RichText.jsx';
 import SocialLinks from '../components/SocialLinks.jsx';
 import { MailIcon } from '../components/icons.jsx';
@@ -19,7 +20,7 @@ export default function Contact() {
     e.preventDefault();
     setStatus({ state: 'sending', message: '' });
     try {
-      const { delivered } = await api('/contact', { method: 'POST', body: form });
+      const { delivered } = STATIC_SITE ? { delivered: false } : await api('/contact', { method: 'POST', body: form });
       if (delivered) {
         setForm(EMPTY);
         setStatus({ state: 'sent', message: 'Thanks for reaching out! The board will get back to you soon.' });

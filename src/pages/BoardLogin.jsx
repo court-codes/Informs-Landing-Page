@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useSite } from '../context/SiteContext.jsx';
 import { api } from '../api.js';
+import { STATIC_SITE } from '../staticSite.js';
 
 const BOARD_EMAIL = 'informs@scu.edu';
 
@@ -15,6 +16,24 @@ export default function BoardLogin() {
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
 
+  if (STATIC_SITE) {
+    return (
+      <section className="section page-section">
+        <div className="container auth-wrap">
+          <div className="card auth-card">
+            <h1>Board Login</h1>
+            <p className="muted">
+              This copy of the site is published on GitHub Pages, which can only show pages. It can’t store accounts, edits, or analytics.
+            </p>
+            <p className="muted">
+              To use the board dashboard, run the site with its server: on your computer with <code>npm run dev</code>, or on a host that runs Node.js (see
+              the README).
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
   if (auth.loading) return <div className="page-loading">Loading…</div>;
   if (auth.authenticated) return <Navigate to="/board/edit" replace />;
 

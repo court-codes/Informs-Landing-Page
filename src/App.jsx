@@ -3,9 +3,11 @@ import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { useSite } from './context/SiteContext.jsx';
 import { setTrackingEnabled, trackPageview } from './tracking.js';
 import { pageLabel } from './siteConfig.js';
+import { STATIC_SITE } from './staticSite.js';
 import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
 import BoardBar from './components/BoardBar.jsx';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
 import Home from './pages/Home.jsx';
 import Chapter from './pages/Chapter.jsx';
 import Team from './pages/Team.jsx';
@@ -34,7 +36,7 @@ function RouteEffects() {
 
   useEffect(() => {
     if (auth.loading) return;
-    setTrackingEnabled(!auth.authenticated && !pathname.startsWith('/board'));
+    setTrackingEnabled(!STATIC_SITE && !auth.authenticated && !pathname.startsWith('/board'));
     trackPageview(pathname);
   }, [pathname, auth.loading, auth.authenticated]);
 
@@ -55,13 +57,16 @@ function PublicLayout() {
 
 function RequireBoard() {
   const { auth } = useSite();
+  const { pathname } = useLocation();
   if (auth.loading) return <div className="page-loading">Loading…</div>;
   if (!auth.authenticated) return <Navigate to="/board/login" replace />;
   return (
     <main className="board-main">
-      <Suspense fallback={<div className="page-loading">Loading…</div>}>
-        <Outlet />
-      </Suspense>
+      <ErrorBoundary key={pathname}>
+        <Suspense fallback={<div className="page-loading">Loading…</div>}>
+          <Outlet />
+        </Suspense>
+      </ErrorBoundary>
     </main>
   );
 }

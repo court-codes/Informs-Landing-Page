@@ -189,14 +189,14 @@ export default function Analytics() {
             />
           </div>
 
-          {(!data.formsConnected.join || !data.formsConnected.newsletter) && (
+          {(!data.formsConnected?.join || !data.formsConnected?.newsletter) && (
             <div className="card notice-card">
               <h3>
-                {!data.formsConnected.join && !data.formsConnected.newsletter
+                {!data.formsConnected?.join && !data.formsConnected?.newsletter
                   ? 'Your Google Forms aren’t connected yet'
-                  : `The ${data.formsConnected.join ? 'Newsletter' : 'Join INFORMS'} form isn’t connected yet`}
+                  : `The ${data.formsConnected?.join ? 'Newsletter' : 'Join INFORMS'} form isn’t connected yet`}
               </h3>
-              <p>Form completions only show up here once each Google Form is connected to the site. It takes about two minutes per form.</p>
+              <p>Form completions show up here once each Google Form is connected to the site. It takes about two minutes per form and works on localhost too.</p>
               <Link to="/board/forms" className="btn btn-primary btn-sm">
                 Connect Google Forms
               </Link>

@@ -1,5 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { api } from '../api.js';
+import { STATIC_SITE } from '../staticSite.js';
+import { defaultContent } from '../../server/defaultContent.js';
 
 const SiteContext = createContext(null);
 
@@ -20,6 +22,11 @@ export function SiteProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    if (STATIC_SITE) {
+      setContent(defaultContent);
+      setAuth({ loading: false, registered: false, authenticated: false, email: null });
+      return;
+    }
     api('/content').then(setContent).catch((err) => setLoadError(err.message));
     refreshAuth();
   }, [refreshAuth]);
