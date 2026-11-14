@@ -1364,12 +1364,8 @@ code {
 .post-cover-fallback {
   width: 100%;
   aspect-ratio: 16 / 9;
+  object-fit: cover;
   display: block;
-}
-
-.post-cover img {
-  object-fit: scale-down;
-  background: var(--blue-50);
 }
 
 .post-cover-fallback {
