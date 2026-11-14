@@ -1437,11 +1437,12 @@ code {
   border-radius: var(--radius);
   overflow: hidden;
   aspect-ratio: 4 / 3;
-  display: grid;
-  place-items: center;
 }
 
+/* Absolute so the photo's natural height can't stretch the frame; it always fits the frame's box. */
 .carousel-frame img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -1459,6 +1460,7 @@ code {
 
 .carousel-arrow {
   position: absolute;
+  z-index: 1;
   top: 50%;
   transform: translateY(-50%);
   width: 46px;
@@ -1491,6 +1493,7 @@ code {
 
 .carousel-count {
   position: absolute;
+  z-index: 1;
   top: 12px;
   right: 12px;
   background: rgba(11, 28, 77, 0.78);
@@ -1590,7 +1593,7 @@ code {
   position: fixed;
   top: 20px;
   right: 20px;
-  z-index: 1;
+  z-index: 2;
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
   border: none;
