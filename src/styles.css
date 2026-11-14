@@ -887,7 +887,8 @@ code {
 .photo-card img {
   width: 100%;
   aspect-ratio: 4 / 3;
-  object-fit: cover;
+  object-fit: scale-down;
+  background: var(--blue-50);
 }
 
 .photo-card figcaption {
@@ -1363,8 +1364,12 @@ code {
 .post-cover-fallback {
   width: 100%;
   aspect-ratio: 16 / 9;
-  object-fit: cover;
   display: block;
+}
+
+.post-cover img {
+  object-fit: scale-down;
+  background: var(--blue-50);
 }
 
 .post-cover-fallback {
@@ -1443,7 +1448,7 @@ code {
 .carousel-frame img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: scale-down;
   animation: carousel-fade 0.2s ease-out;
 }
 
